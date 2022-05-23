@@ -1,6 +1,6 @@
 - id: generate-plantuml
   name: PlantUML Diagram Generator
   description: Generates images from PlantUML files and places them in the given directory.
-  entry: python hooks/generate_plantuml.py
+  entry: hooks/generate_plantuml.py
   language: python
   files: (\.puml|\.pu)$
