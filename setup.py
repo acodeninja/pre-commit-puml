@@ -13,5 +13,6 @@ setuptools.setup(
     project_urls={
         "Bug Tracker": "https://github.com/acodeninja/pre-commit-puml/issues",
     },
+    package_dir={"": "hooks"},
     python_requires=">=3.6",
 )
