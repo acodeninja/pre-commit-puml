@@ -14,5 +14,6 @@ setuptools.setup(
         "Bug Tracker": "https://github.com/acodeninja/pre-commit-puml/issues",
     },
     package_dir={"": "hooks"},
+    scripts=['hooks/generate_plantuml.py'],
     python_requires=">=3.6",
 )
