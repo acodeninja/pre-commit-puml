@@ -4,12 +4,12 @@ repos:
       - id: generate-plantuml
         name: PlantUML Diagram Generator
         description: Generates images from PlantUML files and places them in the given directory.
-        entry: generate_plantuml
+        entry: generate_plantuml.py
         language: python
         additional_dependencies:
           - plantuml==0.3.0
           - six==1.16.0
         files: (\.puml|\.pu)$
         args:
-          - --output-directory=./images
+          - --output-directory=@
           - --output-extension=svg

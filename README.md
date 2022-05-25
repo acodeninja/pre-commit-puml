@@ -18,7 +18,8 @@ repos:
     hooks:
       - id: generate-plantuml
         args:
-          # The repository root relative directory to output generated images to.
+          # The repository root relative directory to output generated images to. 
+          # To place generated images in the same directory as the source file, use @
           - --output-directory=./images
           # The file type to use, file names are maintained and extensions swapped.
           - --output-extension=svg
