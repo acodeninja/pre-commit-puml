@@ -1,9 +1,11 @@
-# `pre-commit-puml`
+# pre-commit-puml
+
+---
 
 A [PlantUML](https://plantuml.com/) [pre-commit](https://pre-commit.com/) hook that generates diagrams for use in 
 technical documentation.
 
-## Installation
+## Using pre-commit-puml with pre-commit
 
 ### Requirements
 

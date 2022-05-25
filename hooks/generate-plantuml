@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+
+import subprocess
+from os import mkdir, getcwd, replace
+from os.path import exists, dirname, join, basename
+import argparse
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from urllib.request import urlretrieve
+
+__PLANTUML_VERSION__ = "1.2022.5"
+__PLANTUML_JARFILE__ = f".plantuml-{__PLANTUML_VERSION__}.jar"
+
+
+def has_plantuml():
+    return exists(__PLANTUML_JARFILE__)
+
+
+def fetch_plantuml():
+    plantuml_download_url = f"https://github.com/plantuml/plantuml/releases/download/v{__PLANTUML_VERSION__}/plantuml-{__PLANTUML_VERSION__}.jar"
+    print(f"[generate-plantuml] DEBUG: Downloading PlantUML from {plantuml_download_url}")
+    urlretrieve(plantuml_download_url, __PLANTUML_JARFILE__)
+
+
+def get_output_directory(output_directory, file_path):
+    print(f"[generate-plantuml] DEBUG: getting output directory for {file_path}")
+    if output_directory == '@':
+        finalised_output_directory = dirname(join(getcwd(), file_path))
+        print(f'[generate-plantuml] DEBUG: output directory for {file_path} is same as diagram {finalised_output_directory}') 
+        return finalised_output_directory
+
+    finalised_output_directory = join(getcwd(), output_directory)
+    print(f"[generate-plantuml] DEBUG: output directory for {file_path} is project relative {finalised_output_directory}")
+    return finalised_output_directory
+
+
+def create_output_file(source, output_directory, extension):
+    print(f"[generate-plantuml] DEBUG: started diagramming {source}")
+    subprocess.call([
+        'java',
+        '-jar',
+        __PLANTUML_JARFILE__,
+        f'-T{extension}',
+        '-o', output_directory,
+        source
+    ])
+    print(f"[generate-plantuml] DEBUG: finished diagramming {source}")
+
+
+def files_different(existing, proposed):
+    print(f"[generate-plantuml] DEBUG: comparing files {existing}, and {proposed}")
+    with open(existing, 'r') as existing_file:
+        existing_file_contents = existing_file.read().replace('\n', '')
+        with open(proposed, 'r') as proposed_file:
+            proposed_file_contents = proposed_file.read().replace('\n', '')
+
+            return existing_file_contents != proposed_file_contents
+
+
+def process_file(output_directory, output_extension, source):
+    output_location = get_output_directory(output_directory, source)
+    output_filename = f"{Path(source).stem}.{output_extension}"
+
+    if not exists(output_location):
+        print("[generate-plantuml] DEBUG: output directory did not exist, creating")
+        mkdir(output_location)
+
+    with TemporaryDirectory() as temporary_directory:
+        create_output_file(source, temporary_directory, output_extension)
+        file_unchanged = True
+
+        if exists(f"{output_location}/{output_filename}"):
+            file_unchanged = not files_different(
+                f"{output_location}/{output_filename}",
+                f"{temporary_directory}/{output_filename}",
+            )
+
+        if not file_unchanged:
+            replace(f"{output_location}/{output_filename}", f"{temporary_directory}/{output_filename}")
+
+        return file_unchanged
+
+
+def hook(output_directory, output_extension, file_paths):
+    if not has_plantuml():
+        fetch_plantuml()
+
+    print(f"[generate-plantuml] DEBUG: running hook with {output_directory}, {output_extension}, {file_paths}")
+
+    results = []
+
+    for file_path in file_paths:
+        results.append(process_file(output_directory, output_extension, file_path))
+
+    return any(results)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='PlantUML Generator Hook')
+    parser.add_argument('--output-directory', default="./images")
+    parser.add_argument('--output-extension', default="svg")
+    parser.add_argument('file_paths', nargs="+")
+
+    args = parser.parse_args()
+
+    print(f"[generate-plantuml] DEBUG: Parsed arguments {args}")
+
+    files_unchanged = hook(
+        output_directory=args.output_directory,
+        output_extension=args.output_extension,
+        file_paths=args.file_paths,
+    )
+
+    if not files_unchanged:
+        exit(1)
+
