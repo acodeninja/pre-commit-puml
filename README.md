@@ -18,7 +18,7 @@ repos:
   - repo: https://github.com/acodeninja/pre-commit-puml
     rev: main
     hooks:
-      - id: generate-plantuml
+      - id: generate_plantuml
         args:
           # The repository root relative directory to output generated images to. 
           # To place generated images in the same directory as the source file, use @
