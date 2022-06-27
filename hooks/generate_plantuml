@@ -79,7 +79,7 @@ def process_file(output_directory, output_extension, source):
             )
 
             if not file_unchanged:
-                move(f"{output_location}/{output_filename}", f"{temporary_directory}/{output_filename}")
+                move(f"{temporary_directory}/{output_filename}", f"{output_location}/{output_filename}")
                 logging.info(f"Fixing {source}")
 
             return file_unchanged
