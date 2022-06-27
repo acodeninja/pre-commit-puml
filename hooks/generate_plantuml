@@ -2,8 +2,9 @@
 
 import logging
 import subprocess
-from os import mkdir, getcwd, replace
-from os.path import exists, dirname, join, basename
+from os import mkdir, getcwd
+from os.path import exists, dirname, join
+from shutil import move
 import argparse
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -78,7 +79,7 @@ def process_file(output_directory, output_extension, source):
             )
 
             if not file_unchanged:
-                replace(f"{output_location}/{output_filename}", f"{temporary_directory}/{output_filename}")
+                move(f"{output_location}/{output_filename}", f"{temporary_directory}/{output_filename}")
                 logging.info(f"Fixing {source}")
 
             return file_unchanged
